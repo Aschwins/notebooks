@@ -1,2 +1,4 @@
-# notebooks
-Nice notebooks.
+# Notebooks
+
+This repository contains some notebooks which are nice.
+
