@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 <!-- #region -->
 # Gaussian Process
 
-In this notebook we're going to explore how a Gaussian Process works, what it is and how we can implement it in python. Let's start with a definition.
+In this notebook we're going to explore how a Gaussian Processes work, what it is and how we can implement it in python. Let's start with a definition.
 
 ***Definition 1:***<br>
 For any set $S$ a gaussian process on $S$ is a set of random variables $\{ Z_{t}, t \in S\}$ such that $\forall n \in N$, $t_{1},...,t_{n} \in S$ the vector $(Z_{t_1}, Z_{t_2}, ... , Z_{t_n})$ is multivariate Gaussian distributed.
@@ -50,7 +50,7 @@ for W in Ws:
     plt.title("Five random draws of a Gaussian Process defined in Example 2.")
 ```
 
-Now this is a great example of a Gaussian Process, but it doesn't really describe one of the key elements of a Gaussian Process: 'The Kernel'. Or also the Covariance function. So let's define a couple of kernels.
+Now this is a great example of a Gaussian Process, but it doesn't really describe one of the key elements of a Gaussian Process: 'The Kernel'. Or also the Covariance function. So let's define a couple of kernels. The covariance functions all have the property that points close together have a high covariance and points far away from eachother have a low covariance.
 
 ```python
 # Choose a kernel
@@ -58,11 +58,12 @@ def switch_kernel(arg):
     switcher = {
         1: lambda x,y: x*y,
         2: lambda x,y: min(x,y),
-        3: lambda x,y: np.exp(-100*(x-y)*(x-y))
+        3: lambda x,y: np.exp(-100*(x-y)*(x-y)),
+        4: lambda x,y: np.exp(-1*np.sin(5*np.pi*(x-y))**2)
     }
     return switcher.get(arg, "Invalid argument")
 
-def sample(kernel):
+def sample(kernel, mu=None):
     # Choose a kernel
     k = switch_kernel(kernel)
     
@@ -77,14 +78,17 @@ def sample(kernel):
             C[i,j] = k(x[i], x[j])
 
     # Sample from a gaussian process at these random points
-    mu = np.random.normal()
+    mu = mu or np.random.normal()
     A,S,B = np.linalg.svd(C)
     z = A @ np.sqrt(S)* mu
 
     plt.plot(x, z);
     plt.xlim(0, 1);
     plt.ylim(-2, 2);
+    plt.title(f"Gaussian process with mu: {mu}")
 ```
+
+We now have a way to sample from a gaussian process with differently defined kernels.
 
 ```python
 sample(1);
@@ -101,6 +105,72 @@ sample(3);
 ```
 
 ```python
+sample(4);
+```
+
+```python
+def generate_random_gaussian_data(n_points, sigma, epsilon, x_min, x_max, kernel_function):
+    """
+    Generate random data point around a random gaussian process.
+    
+    Params
+    ------
+    n_points: int, Amount of random data points to generate
+    sigma: standard deviation from the mean of the gaussian
+    epsilon: deviation from the x coordinates of the gaussian
+    x_min: float, lower bound of the x coordinates of the data points
+    x_max, float, upper bound of the x coordinates of the data points
+    kernel_function: func, kernel function (covar function) of the gaussian to use to generate the GP's
+    
+    Returns
+    -------
+    mu: float, The mean of the gaussian.
+    x: list, x coordinates of the random data points
+    y: list, y coordinates of the random data points
+    """
+    
+    # Choose points to sample from
+    x = np.arange(x_min, x_max, 0.01)
+    n = len(x)
+
+    # Construct the covariance matrix
+    C = np.zeros(shape=(n,n))
+    for i in range(n):
+        for j in range(n):
+            C[i,j] = kernel_function(x[i], x[j])
+
+    # Sample from a gaussian process at these random points
+    mu = np.random.normal()
+    A,S,B = np.linalg.svd(C)
+    z = A @ np.sqrt(S)* mu
+    
+    random_ix = np.random.choice(np.arange(len(x)), size=n_points)
+    
+    random_x = x[random_ix] + np.random.normal(0, epsilon, size=n_points)
+    random_y = z[random_ix] + np.random.normal(0, sigma, size=n_points)
+    
+    return (mu, random_x, random_y)
+```
+
+```python
+mu, x, y = generate_random_gaussian_data(50, 0.01, 0.05, 0, 1, switch_kernel(3))
+```
+
+```python
+# plt.scatter(x,y)
+sample(3, mu=mu)
+plt.scatter(x,y);
+```
+
+```python
+
+```
+
+```python
+
+```
+
+```python
 
 ```
 
@@ -114,6 +184,16 @@ sample(3);
 
 ```python
 
+```
+
+```python
+
+```
+
+1. Create a Gaussian Plane/Surface.
+
+```python
+np.random.normal(0, 0.1, 2)
 ```
 
 A gaussian process needs a kernel, which is also the covariance function
