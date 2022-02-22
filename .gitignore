@@ -1,6 +1,7 @@
 # notebooks
 data/
 *.ipynb
+notebooks_ignore/
 
 idea/
 *idea/

@@ -1,6 +1,6 @@
 # Notebooks
 
-This repository contains some notebooks which are nice.
+This repository contains Jupyter notebooks.
 
 # Development
 
@@ -14,4 +14,22 @@ pip install - requirements.txt
 
 # Install the package
 python setup.py develop
+
+jupyterlab
+```
+
+# JupyterLab extensions
+
+```sh
+# tracking notebooks
+jupytext --set-formats .ipynb,.md <notebook>.ipynb
+
+# install matplotlib widgets
+pip install ipympl
+pip install nodejs
+jupyter labextension install @jupyter-widgets/jupyterlab-manager
+jupyter labextension install jupyter-matplotlib
+jupyter nbextension enable --py widgetsnbextension
+
+
 ```
